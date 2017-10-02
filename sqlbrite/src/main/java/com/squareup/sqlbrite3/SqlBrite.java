@@ -15,7 +15,7 @@
  */
 package com.squareup.sqlbrite3;
 
-import android.arch.persistence.db.SupportSQLiteOpenHelper;
+//import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Build;
@@ -25,6 +25,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
+
+import net.sqlcipher.database.SQLiteOpenHelper;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -36,7 +39,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A lightweight wrapper around {@link SupportSQLiteOpenHelper} which allows for continuously
+ * A lightweight wrapper around {@link SQLiteOpenHelper} which allows for continuously
  * observing the result of a query.
  */
 public final class SqlBrite {
@@ -85,10 +88,10 @@ public final class SqlBrite {
   }
 
   /**
-   * Wrap a {@link SupportSQLiteOpenHelper} for observable queries.
+   * Wrap a {@link SQLiteOpenHelper} for observable queries.
    * <p>
    * While not strictly required, instances of this class assume that they will be the only ones
-   * interacting with the underlying {@link SupportSQLiteOpenHelper} and it is required for
+   * interacting with the underlying {@link SQLiteOpenHelper} and it is required for
    * automatic notifications of table changes to work. See {@linkplain BriteDatabase#createQuery the
    * <code>query</code> method} for more information on that behavior.
    *
@@ -96,9 +99,10 @@ public final class SqlBrite {
    * will be emitted.
    */
   @CheckResult @NonNull public BriteDatabase wrapDatabaseHelper(
-      @NonNull SupportSQLiteOpenHelper helper,
+      @NonNull SQLiteOpenHelper helper,
+      char[] password,
       @NonNull Scheduler scheduler) {
-    return new BriteDatabase(helper, logger, scheduler, queryTransformer);
+    return new BriteDatabase(helper, password, logger, scheduler, queryTransformer);
   }
 
   /**

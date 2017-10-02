@@ -3,7 +3,7 @@ buildscript {
       'minSdk': 14,
       'compileSdk': 26,
       'buildTools': '26.0.1',
-      'kotlin': '1.1.4-3',
+      'kotlin': '1.1.50',
   ]
 
   repositories {
@@ -13,7 +13,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.0.0-beta5'
+    classpath 'com.android.tools.build:gradle:3.0.0-beta6'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
   }
 }
@@ -51,6 +51,7 @@ ext {
   rxBinding = 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
   junit = 'junit:junit:4.12'
   truth = 'com.google.truth:truth:0.35'
+  sqlcipher = 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
 }
 
 configurations {

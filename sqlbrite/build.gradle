@@ -3,6 +3,7 @@ apply plugin: 'com.android.library'
 dependencies {
   api rootProject.ext.rxJava
   api rootProject.ext.supportSqlite
+  api rootProject.ext.sqlcipher
   implementation rootProject.ext.supportAnnotations
 
   androidTestImplementation rootProject.ext.supportTestRunner

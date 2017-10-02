@@ -15,23 +15,27 @@
  */
 package com.squareup.sqlbrite3;
 
-import android.arch.persistence.db.SupportSQLiteDatabase;
-import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import io.reactivex.functions.Function;
+
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteOpenHelper;
+
 import java.util.Arrays;
 import java.util.Collection;
 
-import static android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL;
+import io.reactivex.functions.Function;
+
 import static com.squareup.sqlbrite3.TestDb.EmployeeTable.ID;
 import static com.squareup.sqlbrite3.TestDb.EmployeeTable.NAME;
 import static com.squareup.sqlbrite3.TestDb.EmployeeTable.USERNAME;
 import static com.squareup.sqlbrite3.TestDb.ManagerTable.EMPLOYEE_ID;
 import static com.squareup.sqlbrite3.TestDb.ManagerTable.MANAGER_ID;
+import static net.sqlcipher.database.SQLiteDatabase.CONFLICT_FAIL;
 
-final class TestDb extends SupportSQLiteOpenHelper.Callback {
+final class TestDb extends SQLiteOpenHelper {
   static final String TABLE_EMPLOYEE = "employee";
   static final String TABLE_MANAGER = "manager";
 
@@ -46,6 +50,10 @@ final class TestDb extends SupportSQLiteOpenHelper.Callback {
       + "ON manager." + MANAGER_ID + " = m." + ID;
   static final Collection<String> BOTH_TABLES =
       Arrays.asList(TABLE_EMPLOYEE, TABLE_MANAGER);
+
+  public TestDb(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    super(context, name, factory, version);
+  }
 
   interface EmployeeTable {
     String ID = "_id";
@@ -105,16 +113,16 @@ final class TestDb extends SupportSQLiteOpenHelper.Callback {
   long bobId;
   long eveId;
 
-  @Override public void onCreate(@NonNull SupportSQLiteDatabase db) {
+  @Override public void onCreate(@NonNull SQLiteDatabase db) {
     db.execSQL("PRAGMA foreign_keys=ON");
 
     db.execSQL(CREATE_EMPLOYEE);
-    aliceId = db.insert(TABLE_EMPLOYEE, CONFLICT_FAIL, employee("alice", "Alice Allison"));
-    bobId = db.insert(TABLE_EMPLOYEE, CONFLICT_FAIL, employee("bob", "Bob Bobberson"));
-    eveId = db.insert(TABLE_EMPLOYEE, CONFLICT_FAIL, employee("eve", "Eve Evenson"));
+    db.insertWithOnConflict(TABLE_EMPLOYEE, null, employee("alice", "Alice Allison"), CONFLICT_FAIL);
+    db.insertWithOnConflict(TABLE_EMPLOYEE, null, employee("bob", "Bob Bobberson"), CONFLICT_FAIL);
+    db.insertWithOnConflict(TABLE_EMPLOYEE, null, employee("eve", "Eve Evenson"), CONFLICT_FAIL);
 
     db.execSQL(CREATE_MANAGER);
-    db.insert(TABLE_MANAGER, CONFLICT_FAIL, manager(eveId, aliceId));
+    db.insertWithOnConflict(TABLE_MANAGER, null, manager(eveId, aliceId), CONFLICT_FAIL);
   }
 
   static ContentValues employee(String username, String name) {
@@ -132,7 +140,7 @@ final class TestDb extends SupportSQLiteOpenHelper.Callback {
   }
 
   @Override
-  public void onUpgrade(@NonNull SupportSQLiteDatabase db, int oldVersion, int newVersion) {
+  public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
     throw new AssertionError();
   }
 }
